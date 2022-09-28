@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.2.0
 // - protoc             v3.21.6
-// source: proto/service.proto
+// source: proto/multiplication.proto
 
 package proto
 
@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MultiplicationClient interface {
-	Mul(ctx context.Context, in *Input, opts ...grpc.CallOption) (*Output, error)
+	Multiply(ctx context.Context, in *Input, opts ...grpc.CallOption) (*Output, error)
 }
 
 type multiplicationClient struct {
@@ -33,9 +33,9 @@ func NewMultiplicationClient(cc grpc.ClientConnInterface) MultiplicationClient {
 	return &multiplicationClient{cc}
 }
 
-func (c *multiplicationClient) Mul(ctx context.Context, in *Input, opts ...grpc.CallOption) (*Output, error) {
+func (c *multiplicationClient) Multiply(ctx context.Context, in *Input, opts ...grpc.CallOption) (*Output, error) {
 	out := new(Output)
-	err := c.cc.Invoke(ctx, "/proto.Multiplication/Mul", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/proto.Multiplication/Multiply", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *multiplicationClient) Mul(ctx context.Context, in *Input, opts ...grpc.
 // All implementations must embed UnimplementedMultiplicationServer
 // for forward compatibility
 type MultiplicationServer interface {
-	Mul(context.Context, *Input) (*Output, error)
+	Multiply(context.Context, *Input) (*Output, error)
 	mustEmbedUnimplementedMultiplicationServer()
 }
 
@@ -54,8 +54,8 @@ type MultiplicationServer interface {
 type UnimplementedMultiplicationServer struct {
 }
 
-func (UnimplementedMultiplicationServer) Mul(context.Context, *Input) (*Output, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method Mul not implemented")
+func (UnimplementedMultiplicationServer) Multiply(context.Context, *Input) (*Output, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method Multiply not implemented")
 }
 func (UnimplementedMultiplicationServer) mustEmbedUnimplementedMultiplicationServer() {}
 
@@ -70,20 +70,20 @@ func RegisterMultiplicationServer(s grpc.ServiceRegistrar, srv MultiplicationSer
 	s.RegisterService(&Multiplication_ServiceDesc, srv)
 }
 
-func _Multiplication_Mul_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Multiplication_Multiply_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(Input)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MultiplicationServer).Mul(ctx, in)
+		return srv.(MultiplicationServer).Multiply(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/proto.Multiplication/Mul",
+		FullMethod: "/proto.Multiplication/Multiply",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MultiplicationServer).Mul(ctx, req.(*Input))
+		return srv.(MultiplicationServer).Multiply(ctx, req.(*Input))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -96,10 +96,10 @@ var Multiplication_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MultiplicationServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "Mul",
-			Handler:    _Multiplication_Mul_Handler,
+			MethodName: "Multiply",
+			Handler:    _Multiplication_Multiply_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "proto/service.proto",
+	Metadata: "proto/multiplication.proto",
 }

@@ -1,0 +1,18 @@
+syntax = "proto3";
+
+package proto;
+
+option go_package = "dummy/proto";
+
+message AutInput {
+    string username = 1;
+    string role = 2;
+}
+
+message AutOutput {
+    string token = 1;
+}
+
+service Authentication {
+    rpc Authenticate (AutInput) returns (AutOutput);
+}

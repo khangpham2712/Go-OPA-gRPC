@@ -14,5 +14,5 @@ message Output {
 }
 
 service Multiplication {
-    rpc Mul (Input) returns (Output);
+    rpc Multiply (Input) returns (Output);
 }
