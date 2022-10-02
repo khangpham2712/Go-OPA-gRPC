@@ -10,10 +10,11 @@ import (
 	"net"
 
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/reflection"
 )
 
-func RunServer() {
-	listener, err := net.Listen("tcp", ":50000")
+func RunGRPCServer() {
+	listener, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalln("Something went wrong: " + err.Error())
 	}
@@ -23,6 +24,8 @@ func RunServer() {
 
 	proto.RegisterMultiplicationServer(server, &multiplication.MultiplicationServer{})
 	proto.RegisterAuthenticationServer(server, &authentication.AuthenticationServer{})
+
+	reflection.Register(server)
 
 	err = server.Serve(listener)
 	if err != nil {
