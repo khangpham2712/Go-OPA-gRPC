@@ -2,8 +2,8 @@ package server
 
 import (
 	"dummy/proto"
-
 	"dummy/server/serverinterceptor"
+
 	"dummy/service/authentication"
 	"dummy/service/multiplication"
 	"log"

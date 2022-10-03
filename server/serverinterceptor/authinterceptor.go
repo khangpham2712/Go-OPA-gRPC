@@ -4,9 +4,7 @@ import (
 	"context"
 	opaserver "dummy/opa"
 	"errors"
-	"fmt"
 
-	// "fmt"
 	"log"
 
 	"google.golang.org/grpc"
@@ -27,8 +25,6 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 		"token":   accessToken,
 		"service": info.FullMethod,
 	}
-
-	fmt.Println("input:", input)
 
 	isAllowed := opaserver.QueryOPAServer(input)
 	if !isAllowed {
