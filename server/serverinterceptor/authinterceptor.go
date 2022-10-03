@@ -1,10 +1,8 @@
 package serverinterceptor
 
 import (
-	"bytes"
 	"context"
 	opaserver "dummy/opa"
-	"encoding/json"
 	"errors"
 	"fmt"
 
@@ -25,26 +23,14 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 		}
 	}
 
-	inputRaw := map[string]string{
+	input := map[string]string{
 		"token":   accessToken,
 		"service": info.FullMethod,
 	}
 
-	// json.Marshal()
+	fmt.Println("input:", input)
 
-	fmt.Println(inputRaw)
-
-	// var input interface{}
-	// err := json.NewDecoder(bytes.NewBufferString(inputRaw)).Decode(&input)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// fmt.Println(input)
-
-	isAllowed := opaserver.QueryOPAServer(inputRaw)
-
-	// isAllowed := opaserver.QueryOPAServer(input)
+	isAllowed := opaserver.QueryOPAServer(input)
 	if !isAllowed {
 		return nil, errors.New("Unauthorized")
 	}
@@ -62,12 +48,9 @@ func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *gr
 		}
 	}
 
-	inputRaw := "{\"token\": \"" + accessToken + "\", \"service\": \"" + info.FullMethod + "\"}"
-
-	var input interface{}
-	err := json.NewDecoder(bytes.NewBufferString(inputRaw)).Decode(&input)
-	if err != nil {
-		return err
+	input := map[string]string{
+		"token":   accessToken,
+		"service": info.FullMethod,
 	}
 
 	isAllowed := opaserver.QueryOPAServer(input)

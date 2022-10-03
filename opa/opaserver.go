@@ -8,7 +8,7 @@ import (
 )
 
 func QueryOPAServer(input interface{}) bool {
-	r := rego.New(rego.Query("allow"),
+	r := rego.New(rego.Query("input.service"),
 		rego.Load([]string{"oparules/policy.rego", "oparules/data.json"}, nil))
 
 	ctx := context.Background()
