@@ -22,6 +22,8 @@ func RunGRPCServer() {
 	server := grpc.NewServer(grpc.UnaryInterceptor(serverinterceptor.UnaryAuthServerInterceptor),
 		grpc.StreamInterceptor(serverinterceptor.StreamAuthServerInterceptor))
 
+	// server := grpc.NewServer()
+
 	proto.RegisterMultiplicationServer(server, &multiplication.MultiplicationServer{})
 	proto.RegisterAuthenticationServer(server, &authentication.AuthenticationServer{})
 

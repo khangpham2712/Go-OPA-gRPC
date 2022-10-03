@@ -1,0 +1,15 @@
+{
+    "services": [
+        "/proto.Multiplication/Multiply",
+        "/proto.Multiplication/Division"
+    ],
+    "details": {
+        "/proto.Multiplication/Multiply": [
+            "admin"
+        ],
+        "/proto.Multiplication/Division": [
+            "admin",
+            "user"
+        ]
+    }
+}

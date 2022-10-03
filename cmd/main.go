@@ -1,6 +1,8 @@
 package main
 
-import "dummy/server"
+import (
+	"dummy/server"
+)
 
 func main() {
 	server.RunGRPCServer()

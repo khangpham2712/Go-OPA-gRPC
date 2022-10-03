@@ -1,83 +1,50 @@
 package serverinterceptor
 
 import (
+	"bytes"
 	"context"
-	"dummy/token"
+	"dummy/opa/opaserver"
+	"encoding/json"
 	"errors"
+	"fmt"
 	"log"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 )
 
-var privileges map[string][]string = map[string][]string{
-	"/proto.Multiplication/Multiply": {"admin"},
-}
-
 func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	log.Println("--> Unary Interceptor:", info.FullMethod)
 
-	accessibleRoles, ok := privileges[info.FullMethod]
-	if !ok {
-		return handler(ctx, req)
+	var accessToken string = ""
+	if md, ok := metadata.FromIncomingContext(ctx); ok {
+		if accT, has := md["access_token"]; has {
+			accessToken = accT[0]
+		}
 	}
 
-	md, ok := metadata.FromIncomingContext(ctx)
-	if !ok {
-		return nil, errors.New("Missing metadata")
-	}
+	inputRaw := "{\"token\": \"" + accessToken + "\", \"service\": \"" + info.FullMethod + "\"}"
 
-	accT, ok := md["access_token"]
-	if !ok {
-		return nil, errors.New("Missing access token")
-	}
+	fmt.Println(inputRaw)
 
-	accessToken := accT[0]
-	userClaims, err := token.Verify(accessToken)
+	var input interface{}
+	err := json.NewDecoder(bytes.NewBufferString(inputRaw)).Decode(&input)
 	if err != nil {
 		return nil, err
 	}
 
-	role := userClaims.Role
-	for _, v := range accessibleRoles {
-		if role == v {
-			return handler(ctx, req)
-		}
+	fmt.Println(input)
+
+	isAllowed := opaserver.QueryOPAServer(input)
+	if !isAllowed {
+		return nil, errors.New("Unauthorized")
 	}
 
-	return nil, errors.New("Unauthorized")
+	return handler(ctx, req)
 }
 
 func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	log.Println("--> Stream Interceptor:", info.FullMethod)
 
-	accessibleRoles, ok := privileges[info.FullMethod]
-	if !ok {
-		return handler(srv, ss)
-	}
-
-	md, ok := metadata.FromIncomingContext(ss.Context())
-	if !ok {
-		return errors.New("Missing metadata")
-	}
-
-	accT, ok := md["access_token"]
-	if !ok {
-		return errors.New("Missing access token")
-	}
-
-	accessToken := accT[0]
-	userClaims, err := token.Verify(accessToken)
-	if err != nil {
-		return err
-	}
-
-	role := userClaims.Role
-	for _, v := range accessibleRoles {
-		if role == v {
-			return handler(srv, ss)
-		}
-	}
-
-	return errors.New("Unauthorized")
+	return handler(srv, ss)
 }
