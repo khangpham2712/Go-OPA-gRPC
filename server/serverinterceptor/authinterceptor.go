@@ -3,7 +3,7 @@ package serverinterceptor
 import (
 	"bytes"
 	"context"
-	"dummy/opa/opaserver"
+	opaserver "dummy/opa"
 	"encoding/json"
 	"errors"
 

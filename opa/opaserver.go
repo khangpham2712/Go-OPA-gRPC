@@ -1,7 +1,6 @@
 package opaserver
 
 import (
-	// "github.com/open-policy-agent/opa/cmd"
 	"context"
 	"log"
 
@@ -10,24 +9,18 @@ import (
 
 func QueryOPAServer(input interface{}) bool {
 	r := rego.New(rego.Query("data.policy.allow"),
-		rego.Load([]string{"./../policy.rego", "./../data.json"}, nil))
-
-	if r == nil {
-		log.Printf("r == nil")
-	} else {
-		log.Printf("r != nil")
-	}
+		rego.Load([]string{"oparules/policy.rego", "oparules/data.json"}, nil))
 
 	ctx := context.Background()
-
 	preparedQuery, err := r.PrepareForEval(ctx)
+
 	if err != nil {
-		log.Fatalf("Something went wrong (1)")
+		log.Fatalf(err.Error())
 	}
 
 	result, err := preparedQuery.Eval(ctx, rego.EvalInput(input))
 	if err != nil {
-		log.Fatalf("Something went wrong (2)")
+		log.Fatalf(err.Error())
 	}
 
 	log.Println(result)
@@ -37,8 +30,4 @@ func QueryOPAServer(input interface{}) bool {
 	}
 
 	return false
-
-	// if err := cmd.RootCommand.Execute(); err != nil {
-	// 	log.Fatalln("Some thing went wrong:", err.Error())
-	// }
 }
