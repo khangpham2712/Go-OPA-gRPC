@@ -6,6 +6,7 @@ import (
 	opaserver "dummy/opa"
 	"encoding/json"
 	"errors"
+	"fmt"
 
 	// "fmt"
 	"log"
@@ -24,19 +25,26 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 		}
 	}
 
-	inputRaw := "{\"token\": \"" + accessToken + "\", \"service\": \"" + info.FullMethod + "\"}"
-
-	// fmt.Println(inputRaw)
-
-	var input interface{}
-	err := json.NewDecoder(bytes.NewBufferString(inputRaw)).Decode(&input)
-	if err != nil {
-		return nil, err
+	inputRaw := map[string]string{
+		"token":   accessToken,
+		"service": info.FullMethod,
 	}
+
+	// json.Marshal()
+
+	fmt.Println(inputRaw)
+
+	// var input interface{}
+	// err := json.NewDecoder(bytes.NewBufferString(inputRaw)).Decode(&input)
+	// if err != nil {
+	// 	return nil, err
+	// }
 
 	// fmt.Println(input)
 
-	isAllowed := opaserver.QueryOPAServer(input)
+	isAllowed := opaserver.QueryOPAServer(inputRaw)
+
+	// isAllowed := opaserver.QueryOPAServer(input)
 	if !isAllowed {
 		return nil, errors.New("Unauthorized")
 	}

@@ -1,4 +1,4 @@
-package opa
+package oparules
 
 import future.keywords.contains
 import future.keywords.if
@@ -7,10 +7,10 @@ import future.keywords.in
 # By default, deny requests.
 default allow := false
 
-# Allow if that service doesn't require any grants
+# Allow if that service doesn't require any grants.
 allow if { not (input.service in data.services) }
 
-# Take jwt token and parse it to obtain the role of a user
+# Take jwt token and parse it to obtain the role of a user.
 role := t if {
 	v := input.token
     io.jwt.verify_hs256(v, "dummy")
