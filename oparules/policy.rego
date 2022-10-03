@@ -17,7 +17,7 @@ role := t if {
     t := payload.Role
 }
 
-# Allow if the user'grant equals to the required grant.
+# Allow if the user's grant equals to the required grant.
 allow if {
 	role == data.details[input.service][_]
 }
