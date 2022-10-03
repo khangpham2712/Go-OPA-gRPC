@@ -6,7 +6,8 @@ import (
 	"dummy/opa/opaserver"
 	"encoding/json"
 	"errors"
-	"fmt"
+
+	// "fmt"
 	"log"
 
 	"google.golang.org/grpc"
@@ -25,7 +26,7 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 
 	inputRaw := "{\"token\": \"" + accessToken + "\", \"service\": \"" + info.FullMethod + "\"}"
 
-	fmt.Println(inputRaw)
+	// fmt.Println(inputRaw)
 
 	var input interface{}
 	err := json.NewDecoder(bytes.NewBufferString(inputRaw)).Decode(&input)
@@ -33,7 +34,7 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 		return nil, err
 	}
 
-	fmt.Println(input)
+	// fmt.Println(input)
 
 	isAllowed := opaserver.QueryOPAServer(input)
 	if !isAllowed {
@@ -45,6 +46,26 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 
 func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
 	log.Println("--> Stream Interceptor:", info.FullMethod)
+
+	var accessToken string = ""
+	if md, ok := metadata.FromIncomingContext(ss.Context()); ok {
+		if accT, has := md["access_token"]; has {
+			accessToken = accT[0]
+		}
+	}
+
+	inputRaw := "{\"token\": \"" + accessToken + "\", \"service\": \"" + info.FullMethod + "\"}"
+
+	var input interface{}
+	err := json.NewDecoder(bytes.NewBufferString(inputRaw)).Decode(&input)
+	if err != nil {
+		return err
+	}
+
+	isAllowed := opaserver.QueryOPAServer(input)
+	if !isAllowed {
+		return errors.New("Unauthorized")
+	}
 
 	return handler(srv, ss)
 }
