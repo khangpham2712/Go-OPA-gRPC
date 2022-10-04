@@ -13,7 +13,7 @@ load_test:
 	--call proto.Multiplication.Multiply \
 	-d '{"a":$(a),"b":$(b)}' \
 	-m '{"access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJleHAiOjE2NjQ5NTM3MDUsIlVzZXJuYW1lIjoia2hhbmdwdDMiLCJSb2xlIjoiYWRtaW4ifQ.chmoMiFj7ko5DJiCFTZnPhOTpzDiNPrpOxXDGAWH4kE"}' \
-	localhost:50051
+	localhost:$(port)
 
 install_ghz:
 	brew install ghz
