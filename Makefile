@@ -7,6 +7,9 @@ docker_build:
 docker_run:
 	docker run -d -p 50051:50051 --name khangpham2712-dummy khangpham2712/dummy:latest
 
+docker_push:
+	docker push khangpham2712/dummy:latest
+
 docker_remove_dangling_images:
 	docker image rm -f $(docker images --format "{{.ID}}" --filter "dangling=true")
 
