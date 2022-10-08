@@ -5,7 +5,7 @@ docker_build:
 	docker build -t khangpham2712/dummy:latest .
 
 docker_run:
-	docker run -d -p 50000:50000 khangpham2712/dummy:latest
+	docker run -d -p 50051:50051 khangpham2712/dummy:latest
 
 load_test:
 	ghz --insecure -c $(curr) -n $(nTime)  \
