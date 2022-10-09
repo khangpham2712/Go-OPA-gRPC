@@ -6,5 +6,5 @@ RUN go mod download
 RUN go mod tidy
 # COPY *.go .
 COPY . .
-EXPOSE 8000
+EXPOSE 50051
 ENTRYPOINT [ "go", "run", "cmd/main.go" ]
