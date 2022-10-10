@@ -28,7 +28,10 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 
 	isAllowed := opaserver.QueryOPAServer(input)
 	if !isAllowed {
-		return nil, errors.New("Unauthorized")
+		log.Println("Unauthorized")
+		// return nil, errors.New("Unauthorized")
+		// return proto.Output{ErrorCode: 1, Res: 0}, nil
+		return nil, nil
 	}
 
 	return handler(ctx, req)

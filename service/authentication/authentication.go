@@ -19,6 +19,7 @@ func (server *AuthenticationServer) Authenticate(c context.Context, input *proto
 		log.Fatalln(err.Error())
 	}
 
-	var output *proto.AutOutput = &proto.AutOutput{Token: accessToken}
+	var successStatus int32 = 1
+	var output *proto.AutOutput = &proto.AutOutput{SuccessStatus: successStatus, Token: accessToken}
 	return output, nil
 }

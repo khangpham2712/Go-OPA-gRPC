@@ -1,0 +1,30 @@
+kind: Pod
+apiVersion: v1
+metadata:
+  name: dummy
+  labels:
+    app: dummy
+spec:
+  containers:
+  - name: khangpham2712-dummy
+    image: khangpham2712/dummy:latest
+    resources:
+      limits:
+        memory: "2Gi"
+        cpu: "1000m"
+    ports:
+        - containerPort: 50051
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: dummy-service
+spec:
+  selector:
+    app: dummy
+  ports:
+    - name: "50051"
+      port: 50051
+      targetPort: 50051
+status:
+  loadBalancer: {}

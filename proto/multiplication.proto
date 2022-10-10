@@ -10,7 +10,8 @@ message Input {
 }
 
 message Output {
-    int64 res = 1;
+    int32 successStatus = 1;
+    int64 res = 2;
 }
 
 service Multiplication {
