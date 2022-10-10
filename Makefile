@@ -26,3 +26,17 @@ load_test:
 
 install_ghz:
 	brew install ghz
+
+get_port:
+	kubectl get pod $(podName) --template='{{(index (index .spec.containers 0).ports 0).containerPort}}{{"\n"}}'
+
+port_forward:
+	kubectl port-forward service/$(svcName) $(hostPort):$(kubectl get pod $(kubectl get pods) --template='{{(index (index .spec.containers 0).ports 0).containerPort}}{{"\n"}}')
+
+minikube_start:
+	minikube start
+	kubectl create -f $(path)
+
+minikube_end:
+	minikube stop
+	minikube delete
