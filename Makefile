@@ -1,4 +1,4 @@
-go:
+go_run:
 	go run cmd/main.go
 
 docker_build:
