@@ -31,7 +31,7 @@ get_port:
 	kubectl get pod $(podName) --template='{{(index (index .spec.containers 0).ports 0).containerPort}}{{"\n"}}'
 
 port_forward:
-	kubectl port-forward service/$(svcName) $(hostPort):$(kubectl get pod $(kubectl get pods) --template='{{(index (index .spec.containers 0).ports 0).containerPort}}{{"\n"}}')
+	kubectl port-forward service/$(svcName) $(hostPort):$(kubectl get pod $(podName) --template='{{(index (index .spec.containers 0).ports 0).containerPort}}{{"\n"}}')
 
 minikube_start:
 	minikube start
@@ -40,3 +40,6 @@ minikube_start:
 minikube_end:
 	minikube stop
 	minikube delete
+
+minikube_log:
+	kubectl logs -f $(podName)
