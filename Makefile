@@ -24,6 +24,14 @@ load_test:
 	-m '{"access_token":"$(token)"}' \
 	localhost:$(port)
 
+load_test_format:
+	ghz --insecure -c $(curr) -n $(nTime) --format=$(format) --output=/Users/phamthekhang2712/Downloads/$(fileName)  \
+	--proto ./proto/multiplication.proto \
+	--call proto.Multiplication.Multiply \
+	-d '{"a":$(a),"b":$(b)}' \
+	-m '{"access_token":"$(token)"}' \
+	localhost:$(port)
+
 install_ghz:
 	brew install ghz
 
