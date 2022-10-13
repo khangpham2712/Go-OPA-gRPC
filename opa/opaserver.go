@@ -7,20 +7,29 @@ import (
 	"github.com/open-policy-agent/opa/rego"
 )
 
-func QueryOPAServer(input interface{}) bool {
-	r := rego.New(rego.Query("data.oparules.allow"),
+var r *rego.Rego
+
+var ctx context.Context
+var preparedQuery rego.PreparedEvalQuery
+
+func RegisterOPA() {
+	r = rego.New(rego.Query("data.oparules.allow"),
 		rego.Load([]string{"oparules/policy.rego", "oparules/data.json"}, nil))
 
-	ctx := context.Background()
-	preparedQuery, err := r.PrepareForEval(ctx)
-
+	ctx = context.Background()
+	var err error
+	preparedQuery, err = r.PrepareForEval(ctx)
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalln("Preparation error: " + err.Error())
 	}
 
+	log.Println("OPA prepared query registered")
+}
+
+func QueryOPAServer(input interface{}) bool {
 	result, err := preparedQuery.Eval(ctx, rego.EvalInput(input))
 	if err != nil {
-		log.Fatalf(err.Error())
+		log.Fatalln("Evaluation error: " + err.Error())
 	}
 
 	if result.Allowed() {

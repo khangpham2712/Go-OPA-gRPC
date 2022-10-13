@@ -37,7 +37,7 @@ func Verify(accessToken string) (*UserClaims, error) {
 	}
 	userClaims, ok := token.Claims.(*UserClaims)
 	if !ok {
-		return nil, errors.New("Error")
+		return nil, errors.New("verifying process error")
 	}
 	if userClaims.ExpiresAt < time.Now().Local().Unix() {
 		return nil, err

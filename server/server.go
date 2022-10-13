@@ -1,6 +1,7 @@
 package server
 
 import (
+	opaserver "dummy/opa"
 	"dummy/proto"
 	"dummy/server/serverinterceptor"
 
@@ -13,10 +14,13 @@ import (
 	"google.golang.org/grpc/reflection"
 )
 
+var protocol string = "tcp"
+var port string = "50051"
+
 func RunGRPCServer() {
-	listener, err := net.Listen("tcp", ":50051")
+	listener, err := net.Listen(protocol, ":"+port)
 	if err != nil {
-		log.Fatalln("Something went wrong: " + err.Error())
+		log.Fatalln("Listener error: " + err.Error())
 	}
 
 	server := grpc.NewServer(grpc.UnaryInterceptor(serverinterceptor.UnaryAuthServerInterceptor),
@@ -27,8 +31,12 @@ func RunGRPCServer() {
 
 	reflection.Register(server)
 
+	opaserver.RegisterOPA()
+
 	err = server.Serve(listener)
 	if err != nil {
-		log.Fatalln("Something went wrong: " + err.Error())
+		log.Fatalln("Server error: " + err.Error())
+	} else {
+		log.Println("gRPC server is listening on port " + port)
 	}
 }

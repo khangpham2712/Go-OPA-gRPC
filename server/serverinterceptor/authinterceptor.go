@@ -3,7 +3,6 @@ package serverinterceptor
 import (
 	"context"
 	opaserver "dummy/opa"
-	"errors"
 
 	"log"
 
@@ -29,8 +28,6 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 	isAllowed := opaserver.QueryOPAServer(input)
 	if !isAllowed {
 		log.Println("Unauthorized")
-		// return nil, errors.New("Unauthorized")
-		// return proto.Output{ErrorCode: 1, Res: 0}, nil
 		return nil, nil
 	}
 
@@ -54,7 +51,8 @@ func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *gr
 
 	isAllowed := opaserver.QueryOPAServer(input)
 	if !isAllowed {
-		return errors.New("Unauthorized")
+		log.Println("Unauthorized")
+		return nil
 	}
 
 	return handler(srv, ss)

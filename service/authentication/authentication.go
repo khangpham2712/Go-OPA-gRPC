@@ -16,7 +16,7 @@ func (server *AuthenticationServer) Authenticate(c context.Context, input *proto
 	role := input.GetRole()
 	accessToken, err := token.Generate(username, role, "dummy")
 	if err != nil {
-		log.Fatalln(err.Error())
+		log.Fatalln("Token generation error: " + err.Error())
 	}
 
 	var successStatus int32 = 1
