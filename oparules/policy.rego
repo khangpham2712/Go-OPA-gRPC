@@ -7,7 +7,7 @@ import future.keywords.in
 default allow := false
 
 # Allow if that service doesn't require any grants.
-allow if { not (input.service in data.services) }
+# allow if { not (input.service in data.services) }
 
 # Take jwt token and parse it to obtain the role of a user.
 role := t if {
