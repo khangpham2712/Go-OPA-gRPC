@@ -19,7 +19,7 @@ var noAuthorization map[string]bool = map[string]bool{
 	"/proto.Authentication/Authenticate": true,
 }
 
-var receivedTokens map[string]bool = map[string]bool{}
+var receivedTokens map[string]int64 = map[string]int64{}
 
 func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
 	log.Println("--> Unary Interceptor:", info.FullMethod)
@@ -35,12 +35,13 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 		}
 	}
 
-	if isAuth, has := readFromReceivedTokens(accessToken + ".." + info.FullMethod); has {
-		if isAuth {
+	if e, has := readFromReceivedTokens(accessToken + ".." + info.FullMethod); has {
+		if time.Now().Unix() <= e {
 			return handler(ctx, req)
 		}
 
-		log.Println("Unauthorized")
+		delete(receivedTokens, accessToken+".."+info.FullMethod)
+		log.Println("Token expired")
 		return nil, nil
 	}
 
@@ -50,12 +51,12 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 	}
 	//this code block is used to log the OPA execution time
 	start := time.Now()
-	isAllowed := opaserver.QueryOPAServer(input)
+	isAllowed, exp := opaserver.QueryOPAServer(input)
 	duration := time.Since(start)
 	log.Println("OPA query duration:", duration)
 	//
 
-	writeToReceivedTokens(accessToken+".."+info.FullMethod, isAllowed)
+	writeToReceivedTokens(accessToken+".."+info.FullMethod, exp)
 
 	if !isAllowed {
 		log.Println("Unauthorized")
@@ -79,12 +80,13 @@ func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *gr
 		}
 	}
 
-	if isAuth, has := readFromReceivedTokens(accessToken + ".." + info.FullMethod); has {
-		if isAuth {
+	if e, has := readFromReceivedTokens(accessToken + ".." + info.FullMethod); has {
+		if time.Now().Unix() <= e {
 			return handler(srv, ss)
 		}
 
-		log.Println("Unauthorized")
+		delete(receivedTokens, accessToken+".."+info.FullMethod)
+		log.Println("Token expired")
 		return nil
 	}
 
@@ -94,12 +96,12 @@ func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *gr
 	}
 	//this code block is used to log the OPA execution time
 	start := time.Now()
-	isAllowed := opaserver.QueryOPAServer(input)
+	isAllowed, exp := opaserver.QueryOPAServer(input)
 	duration := time.Since(start)
 	log.Println("OPA query duration:", duration)
 	//
 
-	writeToReceivedTokens(accessToken+".."+info.FullMethod, isAllowed)
+	writeToReceivedTokens(accessToken+".."+info.FullMethod, exp)
 
 	if !isAllowed {
 		log.Println("Unauthorized")
@@ -109,15 +111,15 @@ func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *gr
 	return handler(srv, ss)
 }
 
-func readFromReceivedTokens(s string) (bool, bool) {
+func readFromReceivedTokens(s string) (int64, bool) {
 	mutex.RLock()
-	isAllowed, has := receivedTokens[s]
+	exp, has := receivedTokens[s]
 	mutex.RUnlock()
-	return isAllowed, has
+	return exp, has
 }
 
-func writeToReceivedTokens(s string, b bool) {
+func writeToReceivedTokens(s string, exp int64) {
 	mutex.Lock()
-	receivedTokens[s] = b
+	receivedTokens[s] = exp
 	mutex.Unlock()
 }
