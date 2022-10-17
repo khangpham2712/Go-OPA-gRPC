@@ -31,7 +31,7 @@ func RunGRPCServer() {
 
 	reflection.Register(server)
 
-	opaserver.RegisterOPA()
+	opaserver.RegisterOPAQuery()
 
 	err = server.Serve(listener)
 	if err != nil {

@@ -10,11 +10,15 @@ default allow := false
 # allow if { not (input.service in data.services) }
 
 # Take jwt token and parse it to obtain the role of a user.
-role := t if {
+payload := p if {
 	v := input.token
     io.jwt.verify_hs256(v, "dummy")
     [_, payload, _] := io.jwt.decode(v)
-    t := payload.Role
+    p := payload
+}
+
+role := r if {
+	r := payload.Role
 }
 
 # Allow if the user's grant equals to the required grant.
