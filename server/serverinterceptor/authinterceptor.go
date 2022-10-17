@@ -56,12 +56,12 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 	log.Println("OPA query duration:", duration)
 	//
 
-	writeToReceivedTokens(accessToken+".."+info.FullMethod, exp)
-
 	if !isAllowed {
 		log.Println("Unauthorized")
 		return nil, nil
 	}
+
+	writeToReceivedTokens(accessToken+".."+info.FullMethod, exp)
 
 	return handler(ctx, req)
 }
@@ -101,12 +101,12 @@ func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *gr
 	log.Println("OPA query duration:", duration)
 	//
 
-	writeToReceivedTokens(accessToken+".."+info.FullMethod, exp)
-
 	if !isAllowed {
 		log.Println("Unauthorized")
 		return nil
 	}
+
+	writeToReceivedTokens(accessToken+".."+info.FullMethod, exp)
 
 	return handler(srv, ss)
 }
