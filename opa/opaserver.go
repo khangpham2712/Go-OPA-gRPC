@@ -20,8 +20,6 @@ func RegisterOPAQuery() {
 	if err != nil {
 		log.Fatalln("Preparation error: " + err.Error())
 	}
-
-	log.Println("OPA prepared query registered")
 }
 
 func QueryOPAServer(input interface{}) (bool, int64) {

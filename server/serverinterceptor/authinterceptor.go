@@ -22,7 +22,7 @@ var noAuthorization map[string]bool = map[string]bool{
 var receivedTokens map[string]int64 = map[string]int64{}
 
 func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc.UnaryServerInfo, handler grpc.UnaryHandler) (interface{}, error) {
-	log.Println("--> Unary Interceptor:", info.FullMethod)
+	// log.Println("--> Unary Interceptor:", info.FullMethod)
 
 	if _, ok := noAuthorization[info.FullMethod]; ok {
 		return handler(ctx, req)
@@ -51,12 +51,8 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 		"token":   accessToken,
 		"service": info.FullMethod,
 	}
-	//this code block is used to log the OPA execution time
-	start := time.Now()
+
 	isAllowed, exp := opaserver.QueryOPAServer(input)
-	duration := time.Since(start)
-	log.Println("OPA query duration:", duration)
-	//
 
 	if !isAllowed {
 		log.Println("Unauthorized")
@@ -69,7 +65,7 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 }
 
 func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *grpc.StreamServerInfo, handler grpc.StreamHandler) error {
-	log.Println("--> Stream Interceptor:", info.FullMethod)
+	// log.Println("--> Stream Interceptor:", info.FullMethod)
 
 	if _, ok := noAuthorization[info.FullMethod]; ok {
 		return handler(srv, ss)
@@ -98,12 +94,8 @@ func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *gr
 		"token":   accessToken,
 		"service": info.FullMethod,
 	}
-	//this code block is used to log the OPA execution time
-	start := time.Now()
+
 	isAllowed, exp := opaserver.QueryOPAServer(input)
-	duration := time.Since(start)
-	log.Println("OPA query duration:", duration)
-	//
 
 	if !isAllowed {
 		log.Println("Unauthorized")
