@@ -35,12 +35,14 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 		}
 	}
 
-	if e, has := readFromReceivedTokens(accessToken + ".." + info.FullMethod); has {
+	key := accessToken + ".." + info.FullMethod
+
+	if e, has := readFromReceivedTokens(key); has {
 		if time.Now().Unix() <= e {
 			return handler(ctx, req)
 		}
 
-		delete(receivedTokens, accessToken+".."+info.FullMethod)
+		removeFromReceivedTokens(key)
 		log.Println("Token expired")
 		return nil, nil
 	}
@@ -61,7 +63,7 @@ func UnaryAuthServerInterceptor(ctx context.Context, req interface{}, info *grpc
 		return nil, nil
 	}
 
-	writeToReceivedTokens(accessToken+".."+info.FullMethod, exp)
+	writeToReceivedTokens(key, exp)
 
 	return handler(ctx, req)
 }
@@ -80,12 +82,14 @@ func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *gr
 		}
 	}
 
-	if e, has := readFromReceivedTokens(accessToken + ".." + info.FullMethod); has {
+	key := accessToken + ".." + info.FullMethod
+
+	if e, has := readFromReceivedTokens(key); has {
 		if time.Now().Unix() <= e {
 			return handler(srv, ss)
 		}
 
-		delete(receivedTokens, accessToken+".."+info.FullMethod)
+		removeFromReceivedTokens(key)
 		log.Println("Token expired")
 		return nil
 	}
@@ -106,20 +110,26 @@ func StreamAuthServerInterceptor(srv interface{}, ss grpc.ServerStream, info *gr
 		return nil
 	}
 
-	writeToReceivedTokens(accessToken+".."+info.FullMethod, exp)
+	writeToReceivedTokens(key, exp)
 
 	return handler(srv, ss)
 }
 
-func readFromReceivedTokens(s string) (int64, bool) {
+func readFromReceivedTokens(key string) (int64, bool) {
 	mutex.RLock()
-	exp, has := receivedTokens[s]
+	exp, has := receivedTokens[key]
 	mutex.RUnlock()
 	return exp, has
 }
 
-func writeToReceivedTokens(s string, exp int64) {
+func writeToReceivedTokens(key string, exp int64) {
 	mutex.Lock()
-	receivedTokens[s] = exp
+	receivedTokens[key] = exp
+	mutex.Unlock()
+}
+
+func removeFromReceivedTokens(key string) {
+	mutex.Lock()
+	delete(receivedTokens, key)
 	mutex.Unlock()
 }
